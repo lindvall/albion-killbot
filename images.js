@@ -180,11 +180,17 @@ const optimizeImage = async (buffer, w = 640) => {
   return await image.getBufferAsync(Jimp.MIME_PNG);
 };
 
+const hasSupportHealingDone = participants => participants.filter(participant => participant.SupportHealingDone > 0).length > 0;
+
 exports.generateEventImage = async (event) => {
-  let canvas = createCanvas(1600, 1250);
+  const hasSupportHealingSection = hasSupportHealingDone(event.Participants);
+  const height = hasSupportHealingSection ? 1450 : 1250;
+  let canvas = createCanvas(1600, height);
   let tw, th;
   const w = canvas.width;
   const ctx = canvas.getContext("2d");
+  ctx.fillStyle = '#0d0d0d';
+  ctx.fillRect(0, 0, w, height);
 
   await drawImage(ctx, "./assets/background.png", 0, 0);
 
@@ -276,7 +282,7 @@ exports.generateEventImage = async (event) => {
   ctx.fillText(fame, w / 2 - tw / 2, 600);
 
   // assists bar
-  const drawAssistBar = (participants, x, y, width, height, radius) => {
+  const drawAssistBar = (participants, x, y, width, height, radius, isDmgBar = true) => {
     let px = x;
     let py = y;
 
@@ -284,7 +290,7 @@ exports.generateEventImage = async (event) => {
     ctx.fillStyle = "#AAAAAA";
     ctx.strokeStyle = "#000";
     ctx.lineWidth = 3;
-    const text = "Damage";
+    const text = isDmgBar ? "Damage" : "Healing";
     const pw = ctx.measureText(text).width;
     const textX = px + width / 2 - pw / 2;
     ctx.strokeText(text, textX, py);
@@ -314,13 +320,15 @@ exports.generateEventImage = async (event) => {
     ctx.stroke();
     ctx.clip();
 
-    const COLORS = ["#730b0b", "#7e3400", "#835400", "#817306", "#79902c", "#6aad56", "#4fc987", "#00e3bf"];
+    const DAMAGE_COLORS = ["#730b0b", "#7e3400", "#835400", "#817306"];
+    const HEALING_COLORS = ["#79902c", "#6aad56", "#4fc987", "#00e3bf"];
+    const COLORS = isDmgBar ? DAMAGE_COLORS : HEALING_COLORS;
 
     const totalDamage = participants.reduce((sum, participant) => {
-      return sum + Math.max(1, participant.DamageDone);
+      return sum + Math.max(1, participant.hitPointDone);
     }, 0);
     participants.forEach((participant) => {
-      const damagePercent = (Math.max(1, participant.DamageDone) / totalDamage) * 100;
+      const damagePercent = (Math.max(1, participant.hitPointDone) / totalDamage) * 100;
       participant.damagePercent = damagePercent;
     });
 
@@ -390,7 +398,25 @@ exports.generateEventImage = async (event) => {
     return height + py;
   };
 
-  drawAssistBar(event.Participants, 35, 1050, 1530, 80, 40);
+  const dpsParticipants = event.Participants.filter(participant => {
+    if (participant.DamageDone > 0) {
+      participant.hitPointDone = participant.DamageDone;
+      return participant;
+    }
+  });
+  drawAssistBar(dpsParticipants, 35, 1050, 1530, 40, 20);
+
+  //support healing assist bar
+  if (hasSupportHealingSection) {
+    const supportParticipants = event.Participants.filter(participant => {
+      if (participant.SupportHealingDone > 0) {
+        participant.hitPointDone = participant.SupportHealingDone;
+        return participant;
+      }
+    });
+    drawAssistBar(supportParticipants, 35, 1050, 1530, 40, 20, false);
+  }
+  //drawAssistBar(event.Participants, 35, 1050, 1530, 80, 40);
 
   const buffer = optimizeImage(canvas.toBuffer());
   canvas = null;

@@ -84,7 +84,7 @@ exports.embedEvent = (event, locale) => {
       url: KILL_URL.replace("{lang}", l.getLocale()).replace("{kill}", event.EventId),
       description,
       thumbnail: {
-        url: "https://user-images.githubusercontent.com/13356774/76129825-ee15b580-5fde-11ea-9f77-7ae16bd65368.png",
+        url: "https://lespibis.github.io/albion_killbot_assets.github.io/imgs/icon.png",
       },
       fields: [
         {
@@ -266,7 +266,7 @@ exports.embedBattle = (battle, locale) => {
     embed: {
       color: BATTLE,
       title: l.__("BATTLE.EVENT", { guilds: guildCount }),
-      url: `http://www.yaga.sk/killboard/battle.php?id=${battle.id}`,
+      url: `https://kill-board.com/battles/bagang/${battle.id}`,
       description,
       thumbnail: {
         url: "https://user-images.githubusercontent.com/13356774/76130049-b9eec480-5fdf-11ea-95c0-7de130a705a3.png",
