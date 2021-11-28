@@ -414,7 +414,7 @@ exports.generateEventImage = async (event) => {
         return participant;
       }
     });
-    drawAssistBar(supportParticipants, 35, 1050, 1530, 40, 20, false);
+    drawAssistBar(supportParticipants, 35, 1300, 1530, 40, 20, false);
   }
   //drawAssistBar(event.Participants, 35, 1050, 1530, 80, 40);
 
