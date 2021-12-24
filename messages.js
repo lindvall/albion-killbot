@@ -266,7 +266,7 @@ exports.embedBattle = (battle, locale) => {
     embed: {
       color: BATTLE,
       title: l.__("BATTLE.EVENT", { guilds: guildCount }),
-      url: `https://kill-board.com/battles/bagang/${battle.id}`,
+      url: `https://albionbattles.com/battles/${battle.id}`,
       description,
       thumbnail: {
         url: "https://user-images.githubusercontent.com/13356774/76130049-b9eec480-5fdf-11ea-95c0-7de130a705a3.png",
