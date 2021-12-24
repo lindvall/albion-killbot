@@ -189,7 +189,7 @@ exports.generateEventImage = async (event) => {
   let tw, th;
   const w = canvas.width;
   const ctx = canvas.getContext("2d");
-  ctx.fillStyle = '#0d0d0d';
+  ctx.fillStyle = "#0d0d0d";
   ctx.fillRect(0, 0, w, height);
 
   await drawImage(ctx, "./assets/background.png", 0, 0);
@@ -324,18 +324,18 @@ exports.generateEventImage = async (event) => {
     const HEALING_COLORS = ["#79902c", "#6aad56", "#4fc987", "#00e3bf"];
     const COLORS = isDmgBar ? DAMAGE_COLORS : HEALING_COLORS;
 
-    const totalDamage = participants.reduce((sum, participant) => {
+    const totalHitPoints = participants.reduce((sum, participant) => {
       return sum + Math.max(1, participant.hitPointDone);
     }, 0);
     participants.forEach((participant) => {
-      const damagePercent = (Math.max(1, participant.hitPointDone) / totalDamage) * 100;
-      participant.damagePercent = damagePercent;
+      const hitPointPercent = (Math.max(1, participant.hitPointDone) / totalHitPoints) * 100;
+      participant.hitPointPercent = hitPointPercent;
     });
 
     // Draw bars
     participants.forEach((participant, i) => {
       const color = COLORS[i % COLORS.length];
-      const barWidth = Math.round((participant.damagePercent / 100) * width);
+      const barWidth = Math.round((participant.hitPointPercent / 100) * width);
       ctx.beginPath();
       ctx.rect(px, py, barWidth, height);
       ctx.fillStyle = color;
@@ -346,7 +346,7 @@ exports.generateEventImage = async (event) => {
         ctx.strokeStyle = "black";
         ctx.lineWidth = 2;
         ctx.font = "32px Roboto";
-        const text = participant.DamageDone === 0 ? "0%" : Math.round(participant.damagePercent) + "%";
+        const text = participant.hitPointDone === 0 ? "0%" : Math.round(participant.hitPointPercent) + "%";
         const pw = ctx.measureText(text).width;
         const textX = px + barWidth / 2 - pw / 2;
         const textY = py + height / 2 + 10;
@@ -406,7 +406,7 @@ exports.generateEventImage = async (event) => {
   });
   drawAssistBar(dpsParticipants, 35, 1050, 1530, 40, 20);
 
-  //support healing assist bar
+  // support healing assist bar
   if (hasSupportHealingSection) {
     const supportParticipants = event.Participants.filter(participant => {
       if (participant.SupportHealingDone > 0) {
