@@ -2,9 +2,13 @@ const axios = require("axios");
 const logger = require("../helpers/logger");
 const { sleep } = require("../helpers/utils");
 
+const PRICES_ENDPOINT = "prices";
+const HISTORY_ENDPOINT = "history";
+const CHARTS_ENDPOINT = "charts";
+const GOLD_ENDPOINT = "gold";
 
 const albionDataClient = axios.create({
-  baseURL: "https://www.albion-online-data.com/api/v2/stats/Prices/",
+  baseURL: "https://www.albion-online-data.com/api/v2/stats/",
 });
 
 // Setup timeouts for crawler axios client because sometimes server just hangs indefinetly
@@ -31,7 +35,7 @@ albionDataClient.interceptors.response.use(null, async (error) => {
 });
 
 async function getValueData(itemsQuery) {
-  const res = await albionDataClient.get(`${EVENTS_ENDPOINT}/${itemsQuery}.json`);
+  const res = await albionDataClient.get(`${PRICES_ENDPOINT}/${itemsQuery}.json`);
   return res.data;
 }
 
