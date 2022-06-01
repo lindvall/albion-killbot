@@ -41,9 +41,7 @@ const calculateValue = (itemValues, item) => {
 };
 
 async function getValueData(event) {
-  const itemValues = await albionData.getValues({
-    event,
-  });
+  const itemValues = await albionData.getValues(event);
 
   if (!itemValues) {
     logger.error(`No item value data available.`);
