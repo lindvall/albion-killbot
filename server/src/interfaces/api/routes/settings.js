@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const settingsController = require("../controllers/settings");
-const { disableCache } = require("../helpers/cache");
+const { disableCache } = require("../middlewares/cache");
 
 router.use(disableCache);
 
@@ -121,7 +121,7 @@ router.use(disableCache);
  *       schema:
  *         type: string
  *     summary: Get settings for a specific server.
- *     operationId: settingsController.getSettings
+ *     operationId: getSettings
  *     responses:
  *       200:
  *         description: Server settings
@@ -149,7 +149,7 @@ router.get(`/settings/:guildId`, settingsController.getSettings);
  *           schema:
  *             $ref: '#/components/schemas/Settings'
  *     summary: Update settings for a specific server.
- *     operationId: settingsController.setSettings
+ *     operationId: setSettings
  *     responses:
  *       200:
  *         description: Server settings
@@ -172,7 +172,7 @@ router.put(`/settings/:guildId`, settingsController.setSettings);
  *       schema:
  *         type: string
  *     summary: Delete settings for a server.
- *     operationId: settingsController.deleteSettings
+ *     operationId: deleteSettings
  *     responses:
  *       200:
  *         description: Operation success
