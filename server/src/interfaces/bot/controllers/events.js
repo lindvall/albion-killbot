@@ -6,6 +6,7 @@ const { generateEventImage, generateInventoryImage } = require("../../../service
 const { getSettingsByGuild, REPORT_MODES } = require("../../../services/settings");
 const { addRankingKill } = require("../../../services/rankings");
 const { hasSubscription } = require("../../../services/subscriptions");
+const { getValueData } = require("../../../services/itemValue");
 
 const { embedEvent, embedEventImage, embedEventInventoryImage } = require("../helpers/embeds");
 
@@ -33,6 +34,8 @@ async function subscribe(client) {
 
         const { enabled, channel, mode } = guild.settings.kills;
         if (!enabled || !channel) continue;
+
+        guildEvent = await getValueData(guildEvent);
 
         logger.info(`[#${shardId}] Sending event ${event.EventId} to "${guild.name}".`);
         const locale = guild.settings.lang;

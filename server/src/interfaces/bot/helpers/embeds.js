@@ -20,6 +20,30 @@ const MAXLEN = {
   AUTHOR: 256,
 };
 
+const formatEventValue = (event) => {
+  if (event.Killer.Value && event.Victim.Value && event.Victim.InventoryValue) {
+    return [
+      {
+        name: 'Killer:',
+        value: `${humanFormatter(event.Killer.Value, 1)} silver`,
+        inline: true,
+      },
+      {
+        name: 'Victim:',
+        value: `${humanFormatter(event.Victim.Value, 1)} silver`,
+        inline: true,
+      },
+      {
+        name: 'Inventory:',
+        value: `${humanFormatter(event.Victim.InventoryValue, 1)} silver`,
+        inline: true,
+      },
+    ]
+  } else {
+    return []
+  }
+}
+
 const embedEvent = (event, { locale }) => {
   const l = getLocale(locale);
   const { t } = l;
@@ -128,15 +152,33 @@ const embedEventImage = (event, image, { locale }) => {
   });
   const filename = `${event.EventId}-event.png`;
 
+  const dpsAssists = event.Participants.filter(participant => {
+    if (participant.DamageDone > 0 && participant.Name != event.Killer.Name) {
+      participant.hitPointDone = participant.DamageDone;
+      return participant;
+    }
+  });
+
+  const eventFields = [
+    {
+      name: dpsAssists.length ? `Assisted by ${dpsAssists.length} other players.` : "Solo Kill!",
+      value: `**EventId:** ${event.EventId}`,
+      inline: false,
+    },
+  ]
+  const fields = [].concat(eventFields, formatEventValue(event));
+
   return {
     embeds: [
       {
         color: good ? GREEN : RED,
         title,
         url: KILL_URL.replace("{lang}", l.getLocale()).replace("{kill}", event.EventId),
+        fields: fields,
         image: {
           url: `attachment://${filename}`,
         },
+        timestamp: event.TimeStamp,
       },
     ],
     files: [
