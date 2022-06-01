@@ -3,9 +3,7 @@ const logger = require("../helpers/logger");
 
 const MAX_DIFF_BUY_SELL = 0.50;
 
-const getAvg = (itemList, origin) => {
-  // return Math.round(itemList.reduce(((a, b) => b.origin == origin && b.name != '' && !isNaN(b.Value) ? a + b.Value : a), 0));
-
+const getAvg = (itemList) => {
   if (Array.isArray(itemList)) {
     return Math.round(itemList.reduce(((a, b) => b.Type != '' && !isNaN(b.Value) ? a + b.Value : a), 0));
   } else {
@@ -13,15 +11,11 @@ const getAvg = (itemList, origin) => {
   }
 };
 
-const uncertainValue = (itemList) => {
-  const origins = itemList.filter(x => x.uncertainValue).map(x => x.origin);
-  return [...new Set(origins)]
-};
-
 const calculateValue = (itemValues, item) => {
   // Filter result for specific item.
-  let itemArray = [], ret = {}, cheapestItem;
-  itemArray = itemValues.filter(
+  const ret = {};
+  let = cheapestItem;
+  const itemArray = itemValues.filter(
     x => x.item_id == item.Type && x.sell_price_min != 0 && (x.buy_price_max / x.sell_price_min > MAX_DIFF_BUY_SELL)
     );
   // If insufficient data, then use cheapest sell order ignoring quality.

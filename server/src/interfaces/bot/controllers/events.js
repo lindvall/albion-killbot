@@ -28,14 +28,14 @@ async function subscribe(client) {
         guild.settings = settingsByGuild[guild.id];
         if (!hasSubscription(guild.settings)) continue;
 
-        const guildEvent = getTrackedEvent(event, guild.settings);
-        if (!guildEvent) continue;
-        addRankingKill(guild.id, guildEvent, guild.settings);
+        const trackedEvent = getTrackedEvent(event, guild.settings);
+        if (!trackedEvent) continue;
+        addRankingKill(guild.id, trackedEvent, guild.settings);
 
         const { enabled, channel, mode } = guild.settings.kills;
         if (!enabled || !channel) continue;
 
-        guildEvent = await getValueData(guildEvent);
+        const guildEvent = await getValueData(trackedEvent);
 
         logger.info(`[#${shardId}] Sending event ${event.EventId} to "${guild.name}".`);
         const locale = guild.settings.lang;

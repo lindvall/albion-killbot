@@ -1,3 +1,4 @@
+const { getCollection } = require("../ports/database");
 const albion = require("../ports/albion");
 const { publish, subscribe } = require("../ports/queue");
 const logger = require("../helpers/logger");
@@ -16,11 +17,12 @@ async function fetchEventsTo(latestEvent, { offset = 0 } = {}, events = []) {
     return events;
   }
 
+  const collection = getCollection(EVENT_COLLECTION);
+  if (!collection) throw new Error("Not connected to the database.");
+
   try {
     // If not latestEvent, just fetch a single one to create a reference
     if (!latestEvent) {
-      const collection = database.collection(EVENT_COLLECTION);
-      if (!collection) return logger.warn("Not connected to database. Skipping fetching events.");
       latestEvent = await collection.findOne()
 
       if (!latestEvent) latestEvent = { EventId: 0 };
