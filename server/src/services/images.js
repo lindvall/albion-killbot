@@ -58,10 +58,13 @@ const hasSupportHealingDone = participants => participants.filter(participant =>
 
 async function generateEventImage(event) {
   const hasSupportHealingSection = hasSupportHealingDone(event.Participants);
-  let canvas = createCanvas(1600, 1250);
+  const height = hasSupportHealingSection ? 1450 : 1250;
+  let canvas = createCanvas(1600, height);
   let tw, th;
   const w = canvas.width;
   const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#0d0d0d";
+  ctx.fillRect(0, 0, w, height);
 
   await drawImage(ctx, path.join(assetsPath, "background.png"), 0, 0);
 
