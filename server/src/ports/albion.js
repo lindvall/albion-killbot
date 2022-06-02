@@ -61,12 +61,12 @@ const getItemFile = async (item, tries = 0) => {
   }
 
   // Check if file is available on S3 bucket
-  if (awsSdkClient.isEnabled && (await awsSdkClient.downloadFromS3(filename, writer))) {
+  if (awsSdkClient.isEnabled() && (await awsSdkClient.downloadFromS3(filename, writer))) {
     return cache.getFile(ITEMS_DIR, filename);
   }
 
   if (await itemCDNClient.downloadFromCDNs(item, writer)) {
-    if (awsSdkClient.isEnabled) {
+    if (awsSdkClient.isEnabled()) {
       awsSdkClient.uploadToS3(filename, cache.createReadStream(ITEMS_DIR, filename));
     }
     return cache.getFile(ITEMS_DIR, filename);
