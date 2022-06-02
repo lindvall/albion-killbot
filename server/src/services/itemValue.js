@@ -5,16 +5,18 @@ const MAX_DIFF_BUY_SELL = 0.50;
 
 const getAvg = (itemList) => {
   if (Array.isArray(itemList)) {
-    return Math.round(itemList.reduce(((a, b) => b.Type != '' && !isNaN(b.Value) ? a + b.Value : a), 0));
+    return Math.round(itemList.reduce(((a, b) => b !== null && b.Type != '' && !isNaN(b.Value) ? a + b.Value : a), 0));
   } else {
-    return Math.round(Object.values(itemList).reduce(((a, b) => b.Type != '' && !isNaN(b.Value) ? a + b.Value : a), 0));
+    return Math.round(Object.values(itemList).reduce(((a, b) => b !== null && b.Type != '' && !isNaN(b.Value) ? a + b.Value : a), 0));
   }
 };
 
 const calculateValue = (itemValues, item) => {
   // Filter result for specific item.
-  const ret = {};
-  let = cheapestItem;
+  const ret = {Value: 0, UncertainValue: false};
+  if (!item) return ret;
+
+  let cheapestItem;
   const itemArray = itemValues.filter(
     x => x.item_id == item.Type && x.sell_price_min != 0 && (x.buy_price_max / x.sell_price_min > MAX_DIFF_BUY_SELL)
     );
@@ -23,7 +25,6 @@ const calculateValue = (itemValues, item) => {
     cheapestItem = itemValues.filter(
       x => x.item_id == item.Type && x.sell_price_min != 0
       ).sort((a, b) => a.sell_price_min - b.sell_price_min).shift();
-    // itemArray = itemArray.length > 0 ? [itemArray[0]] : [];
   }
   // Check if exact quality exist in result, else use all for average.
   const exactQuality = itemArray.filter(x => x.quality == item.Quality || item.Quality == 0);
@@ -50,26 +51,22 @@ async function getValueData(event) {
 
   logger.debug(`Found item value data of length: ${itemValues.length}`);
 
-  // Go through original event and attach value info to Equipment objects.
-  // Should return modified event even if itemValues is not returned from API.
-
   // Killer
-  Object.keys(event.Killer.Equipment).forEach(itemSlot => {
-    // console.log(itemSlot, obj[itemSlot]);
-    event.Killer.Equipment[itemSlot].assign(calculateValue(itemValues, event.Killer.Equipment[itemSlot]));
+  Object.keys(event.Killer.Equipment).filter(key => event.Killer.Equipment[key] !== null).forEach(itemSlot => {
+    Object.assign(event.Killer.Equipment[itemSlot], calculateValue(itemValues, event.Killer.Equipment[itemSlot]));
   });
   event.Killer.Value = getAvg(event.Killer.Equipment);
 
   // Victim
-  Object.keys(event.Victim.Equipment).forEach(itemSlot => {
-    // console.log(itemSlot, obj[itemSlot]);
-    event.Victim.Equipment[itemSlot].assign(calculateValue(itemValues, event.Victim.Equipment[itemSlot]));
+  Object.keys(event.Victim.Equipment).filter(key => event.Victim.Equipment[key] !== null).forEach(itemSlot => {
+    Object.assign(event.Victim.Equipment[itemSlot], calculateValue(itemValues, event.Victim.Equipment[itemSlot]));
   });
   event.Victim.Value = getAvg(event.Victim.Equipment);
 
   // Victim inventory
   const inventoryItemValue = (item, index, arr) => {
-    arr[index] = item.assign(calculateValue(itemValues, item));
+    if (!item) return;
+    arr[index] = Object.assign(item, calculateValue(itemValues, item));
   };
   event.Victim.Inventory.forEach(inventoryItemValue);
   event.Victim.InventoryValue = getAvg(event.Victim.Inventory);

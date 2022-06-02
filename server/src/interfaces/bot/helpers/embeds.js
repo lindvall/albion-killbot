@@ -21,27 +21,31 @@ const MAXLEN = {
 };
 
 const formatEventValue = (event) => {
-  if (event.Killer.Value && event.Victim.Value && event.Victim.InventoryValue) {
-    return [
-      {
-        name: 'Killer:',
-        value: `${humanFormatter(event.Killer.Value, 1)} silver`,
-        inline: true,
-      },
-      {
-        name: 'Victim:',
-        value: `${humanFormatter(event.Victim.Value, 1)} silver`,
-        inline: true,
-      },
-      {
-        name: 'Inventory:',
-        value: `${humanFormatter(event.Victim.InventoryValue, 1)} silver`,
-        inline: true,
-      },
-    ]
-  } else {
-    return []
+  const retFields = [];
+  
+  if (event.Killer.Value) {
+    retFields.push({
+      name: 'Killer:',
+      value: `${humanFormatter(event.Killer.Value, 1)} silver`,
+      inline: true,
+    })
   }
+  if (event.Victim.Value) {
+    retFields.push({
+      name: 'Victim:',
+      value: `${humanFormatter(event.Victim.Value, 1)} silver`,
+      inline: true,
+    })
+  }
+  if (event.Victim.InventoryValue) {
+    retFields.push({
+      name: 'Inventory:',
+      value: `${humanFormatter(event.Victim.InventoryValue, 1)} silver`,
+      inline: true,
+    })
+  }
+
+  return retFields;
 }
 
 const embedEvent = (event, { locale }) => {
