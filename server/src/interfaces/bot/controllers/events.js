@@ -8,7 +8,7 @@ const { addRankingKill } = require("../../../services/rankings");
 const { hasSubscription } = require("../../../services/subscriptions");
 const { getValueData } = require("../../../services/itemValue");
 
-const { embedEvent, embedEventImage, embedEventInventoryImage } = require("../helpers/embeds");
+const { embedEvent, embedEventImage, embedEventInventoryImage } = require("../../../helpers/embeds");
 
 const { sendNotification } = require("./notifications");
 
