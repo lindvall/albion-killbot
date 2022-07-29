@@ -1,8 +1,10 @@
 const router = require("express").Router();
 const serversController = require("../controllers/servers");
 const { disableCache } = require("../middlewares/cache");
+const { authenticated } = require("../middlewares/auth");
 
 router.use(disableCache);
+router.use(authenticated);
 
 /**
  * @openapi
@@ -32,6 +34,18 @@ router.use(disableCache);
  *            $ref: '#/components/schemas/Channel'
  *        settings:
  *          $ref: '#/components/schemas/Settings'
+ *        limits:
+ *          type: object
+ *          properties:
+ *            players:
+ *              type: number
+ *              default: 10
+ *            guilds:
+ *              type: number
+ *              default: 1
+ *            alliances:
+ *              type: number
+ *              default: 1
  *
  *    Channel:
  *      type: object
@@ -119,22 +133,8 @@ router.use(disableCache);
  *              description: Patreon user id of the subscription owner
  *              example: "17225165"
  *        track:
- *          type: object
- *          description: Tracking settings
  *          readOnly: true
- *          properties:
- *            players:
- *              type: array
- *              items:
- *                $ref: '#/components/schemas/Track'
- *            guilds:
- *              type: array
- *              items:
- *                $ref: '#/components/schemas/Track'
- *            alliances:
- *              type: array
- *              items:
- *                $ref: '#/components/schemas/Track'
+ *          $ref: '#/components/schemas/Track'
  *
  *    Category:
  *      type: object
@@ -150,6 +150,23 @@ router.use(disableCache);
  *
  *    Track:
  *      type: object
+ *      description: Tracking settings
+ *      properties:
+ *        players:
+ *          type: array
+ *          items:
+ *            $ref: '#/components/schemas/TrackItem'
+ *        guilds:
+ *          type: array
+ *          items:
+ *            $ref: '#/components/schemas/TrackItem'
+ *        alliances:
+ *          type: array
+ *          items:
+ *            $ref: '#/components/schemas/TrackItem'
+ *
+ *    TrackItem:
+ *      type: object
  *      properties:
  *        id:
  *          type: string
@@ -163,11 +180,11 @@ router.use(disableCache);
 
 /**
  * @openapi
- * /servers/{guildId}:
+ * /servers/{serverId}:
  *   get:
  *     tags: [Servers]
  *     parameters:
- *     - name: guildId
+ *     - name: serverId
  *       in: path
  *       required: true
  *       schema:
@@ -176,21 +193,21 @@ router.use(disableCache);
  *     operationId: getServer
  *     responses:
  *       200:
- *         description: Server settings
+ *         description: Server data
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Settings'
+ *               $ref: '#/components/schemas/Server'
  */
-router.get(`/servers/:guildId`, serversController.getServer);
+router.get(`/:serverId`, serversController.getServer);
 
 /**
  * @openapi
- * /servers/{guildId}/settings:
+ * /servers/{serverId}/settings:
  *   put:
  *     tags: [Servers]
  *     parameters:
- *     - name: guildId
+ *     - name: serverId
  *       in: path
  *       required: true
  *       schema:
@@ -210,6 +227,37 @@ router.get(`/servers/:guildId`, serversController.getServer);
  *             schema:
  *               $ref: '#/components/schemas/Settings'
  */
-router.put(`/servers/:guildId/settings`, serversController.setServerSettings);
+router.put(`/:serverId/settings`, serversController.setServerSettings);
 
-module.exports = router;
+/**
+ * @openapi
+ * /servers/{serverId}/track:
+ *   put:
+ *     tags: [Servers]
+ *     parameters:
+ *     - name: serverId
+ *       in: path
+ *       required: true
+ *       schema:
+ *         type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Track'
+ *     summary: Update track lists for a specific server.
+ *     operationId: setServerTrack
+ *     responses:
+ *       200:
+ *         description: Server track
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Track'
+ */
+router.put(`/:serverId/track`, serversController.setServerTrack);
+
+module.exports = {
+  path: "/servers",
+  router,
+};

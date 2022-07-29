@@ -1,13 +1,13 @@
 FROM node:16 AS build
 WORKDIR /app
 
-# Install node-prune
-RUN npm i -g node-prune
+# Set npm version
+RUN npm i -g npm@8.5.5
 
 # Install project dependencies and prune unecessary files
 COPY package*.json ./
-RUN npm ci
-RUN node-prune
+RUN npm ci --force
+RUN npx node-prune
 
 # Copy all files except those listed in .dockerignore
 COPY . .

@@ -28,19 +28,11 @@ const DEFAULT_SETTINGS = {
     guilds: [],
     alliances: [],
   },
-  subscription: {
-    expires: null,
-  },
 };
 
 async function getSettings(guild) {
   const collection = getCollection(SETTINGS_COLLECTION);
   return (await collection.findOne({ guild })) || DEFAULT_SETTINGS;
-}
-
-async function getSettingsBySubscriptionOwner(owner) {
-  const collection = getCollection(SETTINGS_COLLECTION);
-  return (await collection.findOne({ "subscription.owner": owner })) || DEFAULT_SETTINGS;
 }
 
 async function getSettingsByGuild(guilds) {
@@ -52,6 +44,8 @@ async function getSettingsByGuild(guilds) {
   });
 
   await collection.find({}).forEach((settings) => {
+    // TODO: Trim track list if subscription is expired
+    // Better to do when Track list gets refactored
     settingsByGuild[settings.guild] = settings;
   });
 
@@ -64,11 +58,17 @@ async function getAllSettings() {
 }
 
 async function setSettings(guild, settings) {
+  for (const key in settings) {
+    if (!(key in DEFAULT_SETTINGS)) delete settings[key];
+  }
+
+  // TODO: Validate track list size is below limits for subscribers
+  // Better to do when Track list gets refactored
   const collection = getCollection(SETTINGS_COLLECTION);
   await collection.updateOne(
     { guild },
     {
-      $set: Object.assign({}, DEFAULT_SETTINGS, settings),
+      $set: settings,
     },
     { upsert: true },
   );
@@ -84,7 +84,6 @@ module.exports = {
   REPORT_MODES,
   DEFAULT_SETTINGS,
   getSettings,
-  getSettingsBySubscriptionOwner,
   getSettingsByGuild,
   getAllSettings,
   setSettings,

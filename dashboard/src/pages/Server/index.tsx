@@ -1,9 +1,9 @@
 import { faCrown, faGear, faList } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Loader from "components/Loader";
+import ServerCard from "components/ServerCard";
 import { Button, Card, Col, Container, ListGroup, Row } from "react-bootstrap";
 import { Link, Navigate, NavLink, Outlet, useParams } from "react-router-dom";
-import Loader from "shared/components/Loader";
-import ServerCard from "shared/components/ServerCard";
 import { useFetchServerQuery } from "store/api";
 import StyledServer from "./styles";
 
@@ -30,15 +30,24 @@ const Server = () => {
             </ServerCard>
             <Card className="mt-3">
               <ListGroup>
-                <NavLink to="settings" className="list-group-item">
+                <NavLink
+                  to="settings"
+                  className="list-group-item list-group-item-action"
+                >
                   <FontAwesomeIcon icon={faGear} className="menu-icon" />
                   <span>Settings</span>
                 </NavLink>
-                <NavLink to="track" className="list-group-item">
+                <NavLink
+                  to="track"
+                  className="list-group-item list-group-item-action"
+                >
                   <FontAwesomeIcon icon={faList} className="menu-icon" />
                   <span>Tracking List</span>
                 </NavLink>
-                <NavLink to="subscription" className="list-group-item">
+                <NavLink
+                  to="subscription"
+                  className="list-group-item list-group-item-action"
+                >
                   <FontAwesomeIcon icon={faCrown} className="menu-icon" />
                   <span>Subscription</span>
                 </NavLink>
@@ -46,9 +55,7 @@ const Server = () => {
             </Card>
           </Col>
           <Col md={8}>
-            <Card>
-              <Outlet />
-            </Card>
+            <Outlet />
           </Col>
         </Row>
       </Container>
