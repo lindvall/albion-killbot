@@ -1,3 +1,5 @@
+const logger = require("./logger");
+
 // This method checks if an event is tracked by a discord server
 // and flags it as a good event (killed is tracked) or bad event (victim is tracker)
 // and returns a copy of it or null if the event is not tracked at all
@@ -50,6 +52,13 @@ function getTrackedBattle(battle, settings) {
   // Ignore battles without fame
   if (battle.totalFame <= 0) {
     return null;
+  }
+
+  // Ignore hellgate 2v2s
+  if (Object.keys(battle.players).length <= 4) {
+    for (const player in battle.players) {
+      if (battle.players[player].deaths == 2 ) return null;
+    }
   }
 
   // Check for tracked ids in players, guilds and alliances
