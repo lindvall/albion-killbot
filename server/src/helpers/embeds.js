@@ -37,6 +37,7 @@ const footer = {
 };
 
 const formatEventValue = (lootValue) => {
+  if (!!lootValue) return [];
   const retFields = [];
   
   if (lootValue.killer) {
