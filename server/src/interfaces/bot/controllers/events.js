@@ -60,6 +60,7 @@ async function subscribe(client) {
             client,
             channel,
             embedEventImage(guildEvent, eventImage, {
+              lootValue,
               locale,
               guildTags,
               addFooter: !hasInventory,

@@ -6,7 +6,7 @@ const cache = require("./adapters/fsCache");
 
 const { sleep } = require("../helpers/scheduler");
 const logger = require("../helpers/logger");
-const { getVictimItems } = require("../helpers/albion");
+const { getItems } = require("../helpers/albion");
 const { memoize } = require("../helpers/cache");
 const { average } = require("../helpers/utils");
 const { SERVERS } = require("../helpers/constants");
@@ -182,17 +182,22 @@ async function getLootValue(event, { server = SERVERS.WEST }) {
     `albion.events.${server}.${event.EventId}.lootValue`,
     async () => {
       try {
-        const victimItems = getVictimItems(event);
+        const victimItems = getItems(event.Victim);
         if (victimItems.equipment.length === 0 && victimItems.inventory.length === 0) return null;
+
+        const killerItems = getItems(event.Killer);
+        if (killerItems.equipment.length === 0) return null;
 
         const itemList = []
           .concat(victimItems.equipment)
           .concat(victimItems.inventory)
+          .concat(killerItems.equipment)
           .map((item) => item.Type)
           .filter((item, i, items) => items.indexOf(item) === i);
         const qualities = []
           .concat(victimItems.equipment)
           .concat(victimItems.inventory)
+          .concat(killerItems.equipment)
           .map((item) => Math.max(item.Quality, 1))
           .filter((item, i, items) => items.indexOf(item) === i)
           .sort();
@@ -225,6 +230,7 @@ async function getLootValue(event, { server = SERVERS.WEST }) {
           }, 0);
 
         return {
+          killer: calculateLootValue(killerItems.equipment),
           equipment: calculateLootValue(victimItems.equipment),
           inventory: calculateLootValue(victimItems.inventory),
         };
