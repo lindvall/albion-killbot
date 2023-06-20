@@ -30,9 +30,9 @@ function toTrackEntity(entity, server) {
   return entity;
 }
 
-// Get all victim items, including equipment and inventory, excluding nulls
-function getVictimItems(event) {
-  const { Equipment, Inventory } = event.Victim;
+// Get all items, including equipment and inventory, excluding nulls
+function getItems(player) {
+  const { Equipment, Inventory } = player;
   return {
     equipment: [
       Equipment.Armor,
@@ -85,7 +85,7 @@ const transformEvent = (event) => ({
 });
 
 module.exports = {
-  getVictimItems,
+  getItems,
   isAlbionId,
   isTrackEntity,
   toTrackEntity,

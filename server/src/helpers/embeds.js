@@ -36,6 +36,34 @@ const footer = {
   text: "Powered by Albion Killbot",
 };
 
+const formatEventValue = (lootValue) => {
+  const retFields = [];
+  
+  if (lootValue.killer) {
+    retFields.push({
+      name: 'Killer:',
+      value: `${humanFormatter(lootValue.killer, 1)} silver`,
+      inline: true,
+    })
+  }
+  if (lootValue.equipment) {
+    retFields.push({
+      name: 'Victim:',
+      value: `${humanFormatter(lootValue.equipment, 1)} silver`,
+      inline: true,
+    })
+  }
+  if (lootValue.inventory) {
+    retFields.push({
+      name: 'Inventory:',
+      value: `${humanFormatter(lootValue.inventory, 1)} silver`,
+      inline: true,
+    })
+  }
+
+  return retFields;
+}
+
 const embedEvent = (event, { lootValue, locale, guildTags = true }) => {
   const l = getLocale(locale);
   const { t } = l;
@@ -158,7 +186,7 @@ const embedEvent = (event, { lootValue, locale, guildTags = true }) => {
   };
 };
 
-const embedEventImage = (event, image, { locale, guildTags = true, addFooter }) => {
+const embedEventImage = (event, image, { lootValue, locale, guildTags = true, addFooter }) => {
   const l = getLocale(locale);
   const { t } = l;
 
@@ -182,12 +210,29 @@ const embedEventImage = (event, image, { locale, guildTags = true, addFooter }) 
   });
   const filename = `${event.EventId}-event.png`;
 
+  const dpsAssists = event.Participants.filter(participant => {
+    if (participant.DamageDone > 0 && participant.Name != event.Killer.Name) {
+      participant.hitPointDone = participant.DamageDone;
+      return participant;
+    }
+  });
+
+  const eventFields = [
+    {
+      name: dpsAssists.length ? `Assisted by ${dpsAssists.length} other players.` : "Solo Kill!",
+      value: `**EventId:** ${event.EventId}`,
+      inline: false,
+    },
+  ]
+  const fields = [].concat(eventFields, formatEventValue(lootValue));
+
   return {
     embeds: [
       {
         color: good ? GREEN : RED,
         title,
         url: KILL_URL.replace("{lang}", l.getLocale()).replace("{kill}", event.EventId),
+        fields: fields,
         image: {
           url: `attachment://${filename}`,
         },
